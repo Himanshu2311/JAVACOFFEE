@@ -1,0 +1,80 @@
+package com.example.javacoffee;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity {
+    int quantity=1,price=5,wpcream=1,chocol=2,wpc=0;
+    EditText eText;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+    public void increase(View v)
+    {
+        if(quantity<100)
+        quantity++;
+        else
+            return;
+        display();
+    }
+    public void decrease(View v)
+    {
+        if(quantity>1)
+            quantity--;
+        else
+            return;
+        display();
+    }
+    public void submitOrder(View v)
+    {
+        int totalPrice=0;
+        eText=(EditText)findViewById(R.id.name_edit_text_view);
+        String name=eText.getText().toString();
+        CheckBox checkBox=(CheckBox)findViewById(R.id.whippedCream);
+        boolean hasChecked1=checkBox.isChecked();
+        if(hasChecked1==true)
+            totalPrice+=quantity;
+        checkBox=(CheckBox)findViewById(R.id.chocolate);
+        boolean hasChecked2=checkBox.isChecked();
+        if(hasChecked2==true)
+            totalPrice+=quantity*2;
+        totalPrice+=price*quantity;
+        String message=createOrderSummary(totalPrice,hasChecked1,hasChecked2,name);
+        String subject="JustJava order for "+name;
+        composeEmail(subject,message);
+    }
+    public void composeEmail(String subject,String body) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT,body);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+    public void display()
+    {
+        TextView tv= (TextView) findViewById(R.id.quantity_text_view);
+        tv.setText(""+quantity);
+    }
+    private String createOrderSummary(int totalPrice,boolean hasChecked1,boolean hasChecked2,String name)
+    {
+        String message="Name :"+name;
+        message+="\nQuantity :"+quantity;
+        message+="\nWhipped Cream :"+hasChecked1;
+        message+="\nChocolate :"+hasChecked2;
+        message+="\nTotal Price :$"+totalPrice;
+        message+="\nThank you for ordering with us!!";
+        return message;
+    }
+}
